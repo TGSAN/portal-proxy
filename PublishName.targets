@@ -1,0 +1,10 @@
+<Project>
+  <!--
+    发布配置中设置 AppendRuntimeIdentifierToAssemblyName=true 时，产物名追加 RID，如 portal-proxy-linux-x64。
+    通过 CustomBeforeMicrosoftCommonTargets 导入：此时 pubxml 已导入、TargetName 尚未计算。
+    不能直接在 pubxml 里写 $(MSBuildProjectName)：VS 发布时会脱离项目上下文预先解析 pubxml，项目属性展开为空。
+  -->
+  <PropertyGroup Condition="'$(AppendRuntimeIdentifierToAssemblyName)' == 'true' and '$(RuntimeIdentifier)' != ''">
+    <AssemblyName>$(MSBuildProjectName)-$(RuntimeIdentifier)</AssemblyName>
+  </PropertyGroup>
+</Project>

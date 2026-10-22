@@ -1,0 +1,45 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <PublishAot>true</PublishAot>
+    <AotPreferCustom>true</AotPreferCustom>
+    <OptimizationPreference>Speed</OptimizationPreference>
+  </PropertyGroup>
+
+  <!-- 减小 AOT 产物体积 -->
+  <PropertyGroup>
+    <InvariantGlobalization>true</InvariantGlobalization>
+    <StackTraceSupport>false</StackTraceSupport>
+    <EventSourceSupport>false</EventSourceSupport>
+    <DebuggerSupport>false</DebuggerSupport>
+    <MetricsSupport>false</MetricsSupport>
+  </PropertyGroup>
+
+  <!-- 发布产物名追加 RID，见 PublishName.targets -->
+  <PropertyGroup>
+    <CustomBeforeMicrosoftCommonTargets>$(MSBuildThisFileDirectory)PublishName.targets</CustomBeforeMicrosoftCommonTargets>
+  </PropertyGroup>
+
+  <!-- 按宿主系统自动选择 LLD.Link.Toolsets 包（与 PublishAotCross 引用 Vezel.Zig.Toolsets 的方式一致） -->
+  <PropertyGroup>
+    <HostRuntimeIdentifier Condition="'$(HostRuntimeIdentifier)' == ''">$(NETCoreSdkPortableRuntimeIdentifier)</HostRuntimeIdentifier>
+    <LLDLinkVersion Condition="'$(LLDLinkVersion)' == ''">23.1.3.13</LLDLinkVersion>
+    <UseExternalLLDLink Condition="'$(UseExternalLLDLink)' == ''">false</UseExternalLLDLink>
+    <!-- 目前 NuGet 上只有这些宿主平台的包 -->
+    <_LLDLinkSupportedHosts>;win-x64;win-arm64;linux-x64;linux-arm64;osx-arm64;</_LLDLinkSupportedHosts>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Fallenwood.PublishAotCross" Version="0.6.0" />
+    <PackageReference Include="LLD.Link.Toolsets.$(HostRuntimeIdentifier)"
+      Version="$(LLDLinkVersion)"
+      PrivateAssets="all"
+      GeneratePathProperty="true"
+      Condition="'$(UseExternalLLDLink)' == 'false' and $(_LLDLinkSupportedHosts.Contains(';$(HostRuntimeIdentifier);'))" />
+  </ItemGroup>
+
+</Project>
